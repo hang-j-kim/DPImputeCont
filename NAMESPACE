@@ -1,0 +1,4 @@
+useDynLib(DPImputeCont)
+import(Rcpp)
+exportPattern("^[[:alpha:]]+")
+exportClasses(Rcpp_modelobject)
