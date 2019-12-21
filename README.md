@@ -5,7 +5,7 @@
 - Provided that `devtools` package has been installed on the system, one can install and load the library by
 
 ```
-devtools::install_github("hangjun25/DPImputeCont")
+devtools::install_github("hang-j-kim/DPImputeCont")
 library(DPImputeCont)
 ```
 
