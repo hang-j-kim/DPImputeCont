@@ -1,8 +1,8 @@
 Package: DPImputeCont
 Type: Package
 Title: DP Normal Mixture Imputation Model for Continuous Data
-Version: 1.2.0
-Date: 2019-11-04
+Version: 1.2.1
+Date: 2020-04-11
 Author: Hang J. Kim
 Maintainer: Hang J. Kim <hang.kim@uc.edu>
 Description: Imputation engine for continuous data using a Dirichlet Process Gaussian-mixture model introduced in Kim et al. (2014), Multiple imputation of missing or faulty values under linear constraints, Journal of Business and Economics Statistics, 32, 375-386
@@ -11,4 +11,4 @@ Depends: Rcpp
 LinkingTo: Rcpp, RcppArmadillo
 RcppModules: IO_module
 NeedsCompilation: yes
-Packaged: 2019-03-25 23:34:36 UTC; kim3h4
+Packaged: 2020-04-10 23:34:36 UTC; kim3h4
