@@ -18,10 +18,13 @@ readData <- function( Y_in, RandomSeed=99 ){
 	#######
 	Y_mat_std = array(0,c(dim(Y_in)[[1]],n_var))
 	mean_Y_input = sd_Y_input = rep(0,n_var)
+	min_Y_obs = max_Y_obs = rep(0,n_var)
 	for (i_var in 1:n_var){
 	  mean_Y_input[i_var] = mean(Y_in[,i_var], na.rm=TRUE)
 	  sd_Y_input[i_var] = sd(Y_in[,i_var], na.rm=TRUE)
 	  Y_mat_std[,i_var] = (Y_in[,i_var] - mean_Y_input[i_var]) / sd_Y_input[i_var]
+		min_Y_obs[i_var] = min(Y_in[,i_var], na.rm=TRUE)
+		max_Y_obs[i_var] = max(Y_in[,i_var], na.rm=TRUE)
 	}
 	#######
 	
@@ -33,7 +36,7 @@ readData <- function( Y_in, RandomSeed=99 ){
 	  }
 	}
 	
-	InputData = list(Y_mat_std=Y_mat_std, mean_Y_input=mean_Y_input, sd_Y_input=sd_Y_input, missing_flag_mat=missing_flag_mat)
+	InputData = list(Y_mat_std=Y_mat_std, mean_Y_input=mean_Y_input, sd_Y_input=sd_Y_input, missing_flag_mat=missing_flag_mat, min_Y_obs=min_Y_obs, max_Y_obs=max_Y_obs)
 
 	return(InputData)	
 	

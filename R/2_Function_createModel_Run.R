@@ -3,6 +3,8 @@ createModel <- function(data_obj, K_mix_comp=50){
   model <- new(modelobject, K_mix_comp)
   model$Y_mat = as.matrix(data_obj$Y_mat_std)
   model$.missing_flag_mat = data_obj$missing_flag_mat
+	model$min_Y_obs = data_obj$min_Y_obs
+	model$max_Y_obs = data_obj$max_Y_obs
 
   ### User defined / Hyperparameters ###
   h_0=1.0 ;  a_Phi=0.25 ;  b_Phi=0.25 ;  a_alpha=0.25 ;  b_alpha=0.25

@@ -23,6 +23,9 @@ RCPP_MODULE(IO_module){
     .property(".where_we_are", &CMain::Getwhere_we_are, &CMain::Setwhere_we_are, "where_we_are")
     
     .property("vec_HyperParameters", &CMain::Getvec_HyperParameters, &CMain::Setvec_HyperParameters, "h_0, a_Phi, b_Phi, a_alpha, b_alpha, n_balance")
+		
+		.property("min_Y_obs", &CMain::Getmin_Y_obs, &CMain::Setmin_Y_obs, "min_Y_obs")
+		.property("max_Y_obs", &CMain::Getmax_Y_obs, &CMain::Setmax_Y_obs, "max_Y_obs")
     
     .method(".Initialization", &CMain::Initialization, "Initialization")
     .method("Iterate", &CMain::Iterate, "Run one iteration of MCMC algorithm")
@@ -85,6 +88,12 @@ void CMain::Setwhere_we_are(std::string where_we_are_) { Param.where_we_are = wh
 
 arma::vec CMain::Getvec_HyperParameters() { return Data.vec_HyperParameters ; }
 void CMain::Setvec_HyperParameters(arma::vec vec_HyperParameters_) { Data.vec_HyperParameters = vec_HyperParameters_ ; }
+
+arma::vec CMain::Getmin_Y_obs() { return Data.min_Y_obs ; }
+void CMain::Setmin_Y_obs(arma::vec min_Y_obs_) { Data.min_Y_obs = min_Y_obs_ ; }
+
+arma::vec CMain::Getmax_Y_obs() { return Data.max_Y_obs ; }
+void CMain::Setmax_Y_obs(arma::vec max_Y_obs_) { Data.max_Y_obs = max_Y_obs_ ; }
 
 ///////////////////////
 arma::mat CMain::GetMu() { return Param.Mu ; }

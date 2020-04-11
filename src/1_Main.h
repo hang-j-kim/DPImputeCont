@@ -18,7 +18,9 @@ class CMain {
   std::string Getwhere_we_are() ; void Setwhere_we_are(std::string) ; 
   
   arma::vec Getvec_HyperParameters() ;   void Setvec_HyperParameters(arma::vec) ;
-  
+  arma::vec Getmin_Y_obs() ;   void Setmin_Y_obs(arma::vec) ;
+	arma::vec Getmax_Y_obs() ;   void Setmax_Y_obs(arma::vec) ;
+	
   void Iterate() ; void Run(int) ; 
   
   arma::mat GetMu() ; void SetMu(arma::mat) ;

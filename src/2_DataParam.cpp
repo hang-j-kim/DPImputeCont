@@ -21,6 +21,7 @@ CParam::CParam(){ }
 CParam::~CParam(){ }
 
 void CParam::Initialization(CData &Data){
+	
   n_sample = Data.n_sample ; n_var = Data.n_var ;  K = Data.K ; // Copy the integers frequently used
   arma::vec mean_Y(n_var), sd_Y(n_var) ; 
   for (int i_var=0; i_var<n_var; i_var++){
@@ -55,6 +56,13 @@ void CParam::Initialization(CData &Data){
   vec_Phi = arma::vec(n_var) ; vec_Phi.fill(5.0) ; 
   alpha = 1.0 ; 
   
+	arma::vec range_Y_obs = Data.max_Y_obs - Data.min_Y_obs ; 
+	min_Y_imp = arma::vec(n_var) ; max_Y_imp = arma::vec(n_var) ;
+	for (int i_var=0; i_var<n_var; i_var++){
+		min_Y_imp(i_var) = Data.min_Y_obs(i_var) - 0.1 * range_Y_obs(i_var) ;
+		max_Y_imp(i_var) = Data.max_Y_obs(i_var) + 0.1 * range_Y_obs(i_var) ;
+	}
+		
 } // void CParam::Initialization
 
 void CParam::Iterate(int Iter, CData &Data) {
@@ -161,60 +169,84 @@ void CParam::S5_Z_vec(CData &Data){
   where_we_are = "S5_Z_vec" ; 
   
   vec_n_Z_vec = arma::zeros<arma::vec>(K) ;
+	
   for (int i_sample=0; i_sample < n_sample; i_sample++) {
-    arma::vec logN_unnorm(K) ; arma::vec y_i_vec = (Data.Y_mat.row(i_sample)).t() ;
-    
+    arma::vec logN_unnorm(K) ; arma::vec y_i_vec = (Data.Y_mat.row(i_sample)).t() ;  
     // for (int k=0; k<K; k++) {
     //   logN_unnorm(k) = logpi(k) + log_dMVN_UT_chol_fn( y_i_vec, Mu.col(k), cube_UT_cholSigma.slice(k) ) ; 
     // }
     // COLLAPSED GIBBS to increase efficiency
-    arma::vec one_vec(n_var) ; one_vec.fill(1.0) ;
-    arma::vec s_i = Data.S_mat.row(i_sample).t() ; arma::vec which_retain_var = one_vec - s_i ;
-    arma::vec y_i_obs(sum(which_retain_var)) ;
-    int count_i_a = 0 ;
-    for (int i_var=0; i_var<n_var; i_var++){
-      if ( which_retain_var(i_var)==1 ){
-        y_i_obs(count_i_a) = y_i_vec(i_var) ; count_i_a++ ;
-      }
-    }
-    for (int k=0; k < K; k++) {
-      arma::mat subMean_UTSigma = sub_Mean_Cov_fn(which_retain_var, Mu.col(k), cube_UT_cholSigma.slice(k) ) ;
-      arma::vec sub_Mean_k = subMean_UTSigma.col(0) ; arma::mat sub_UTSigma_k = subMean_UTSigma.cols(1,sum(which_retain_var)) ;
-      logN_unnorm(k) = logpi(k) + log_dMVN_UT_chol_fn( y_i_obs, sub_Mean_k, sub_UTSigma_k ) ; // Note that vector mu_k is Mu.column(k)
-    }
+    arma::vec one_vec(n_var) ; one_vec.fill(1.0) ; arma::vec s_i = Data.S_mat.row(i_sample).t() ; 
+		
+		if ( sum(s_i) < n_var ){
+			
+			arma::vec which_retain_var = one_vec - s_i ; arma::vec y_i_obs(sum(which_retain_var)) ;
+	    int count_i_a = 0 ;
+	    for (int i_var=0; i_var<n_var; i_var++){
+	      if ( which_retain_var(i_var)==1 ){
+	        y_i_obs(count_i_a) = y_i_vec(i_var) ; count_i_a++ ;
+	      }
+	    }
+	    for (int k=0; k < K; k++) {
+	      arma::mat subMean_UTSigma = sub_Mean_Cov_fn(which_retain_var, Mu.col(k), cube_UT_cholSigma.slice(k) ) ;
+	      arma::vec sub_Mean_k = subMean_UTSigma.col(0) ; arma::mat sub_UTSigma_k = subMean_UTSigma.cols(1,sum(which_retain_var)) ;
+	      logN_unnorm(k) = logpi(k) + log_dMVN_UT_chol_fn( y_i_obs, sub_Mean_k, sub_UTSigma_k ) ; // Note that vector mu_k is Mu.column(k)
+	    }
     
-    double max_logN_unnorm = logN_unnorm.max() ;
-    arma::vec pi_tilde_unnorm = arma::zeros<arma::vec>(K) ;
-    for (int k=0; k<K; k++){
-      pi_tilde_unnorm(k) = exp(logN_unnorm(k)-max_logN_unnorm) ; 
-    }
-    arma::vec pi_tilde = (1.0/sum(pi_tilde_unnorm)) * pi_tilde_unnorm ;
-    Z_vec(i_sample) = rdiscrete_fn( pi_tilde );
-    vec_n_Z_vec(Z_vec(i_sample)) = vec_n_Z_vec(Z_vec(i_sample)) + 1 ; 
-    
+	    double max_logN_unnorm = logN_unnorm.max() ;
+	    arma::vec pi_tilde_unnorm = arma::zeros<arma::vec>(K) ;
+	    for (int k=0; k<K; k++){
+	      pi_tilde_unnorm(k) = exp(logN_unnorm(k)-max_logN_unnorm) ; 
+	    }
+	    arma::vec pi_tilde = (1.0/sum(pi_tilde_unnorm)) * pi_tilde_unnorm ;
+	    Z_vec(i_sample) = rdiscrete_fn( pi_tilde );
+	    vec_n_Z_vec(Z_vec(i_sample)) = vec_n_Z_vec(Z_vec(i_sample)) + 1 ; 
+			
+		} else { 
+
+	    arma::vec pi_tilde = exp(logpi) ;
+	    Z_vec(i_sample) = rdiscrete_fn( pi_tilde );
+					
+		} // if ( sum(s_i) < n_var ) else ... 
+		    
   } // for (int i_sample)
     
 } // void CParam::S3_Z_vec(CData &Data)
 
 void CParam::S_Impute_Y(CData &Data){
   where_we_are = "S_Impute_Y" ; 
-  
+  	
   for (int i_sample=0; i_sample<n_sample; i_sample++){
     arma::vec s_i = Data.S_mat.row(i_sample).t() ;
-    if ( sum(s_i)>0 ){
-      arma::vec y_i = Data.Y_mat.row(i_sample).t() ; int z_i = Z_vec(i_sample) ;
-      arma::vec mu_i = Mu.col(z_i) ; arma::mat UT_cholSigma_i = cube_UT_cholSigma.slice(z_i) ;
-      arma::mat temp_MAT = mean_UT_cond_Normal_fn(s_i, y_i, mu_i, UT_cholSigma_i) ; 
-      arma::vec mu_a_star = temp_MAT.col(0) ; 
-      arma::mat UT_chol_a = temp_MAT.cols(1,sum(s_i)) ; 
-      arma::vec y_a = rMVN_UT_chol_fn( mu_a_star, UT_chol_a ) ;  
-      int count_i_a = 0 ;
-      for (int i_var=0; i_var<n_var; i_var++){
-        if ( s_i(i_var)==1 ){
-          Data.Y_mat(i_sample,i_var) =  y_a(count_i_a) ;
-          count_i_a++ ;
-        } // if (s_i==1)
-      } // for(i_var)
+    if ( sum(s_i) > 0 ){
+      if ( sum(s_i) < n_var ){
+				arma::vec y_i = Data.Y_mat.row(i_sample).t() ; int z_i = Z_vec(i_sample) ;
+	      arma::vec mu_i = Mu.col(z_i) ; arma::mat UT_cholSigma_i = cube_UT_cholSigma.slice(z_i) ;
+	      arma::mat temp_MAT = mean_UT_cond_Normal_fn(s_i, y_i, mu_i, UT_cholSigma_i) ; 
+	      arma::vec mu_a_star = temp_MAT.col(0) ; 
+	      arma::mat UT_chol_a = temp_MAT.cols(1,sum(s_i)) ; 
+	      arma::vec y_a = rMVN_UT_chol_fn( mu_a_star, UT_chol_a ) ;  
+	      int count_i_a = 0 ; arma::vec y_temp = y_i ; 
+	      for (int i_var=0; i_var<n_var; i_var++){
+	        if ( s_i(i_var)==1 ){
+	          y_temp(i_var) =  y_a(count_i_a) ;
+	          count_i_a++ ;
+	        } // if (s_i==1)
+	      } // for(i_var)
+				if ( in_range(y_temp)==1 ){
+					// Avoid drawing an extreme value outside of the support of observed value
+					Data.Y_mat.row( i_sample ) =  y_temp.t() ;
+				} // if ( sum( min_Y_imp < y_temp ) + sum( y_temp < max_Y_imp ) == (2*n_var) )		
+			} else {
+				int z_i = Z_vec(i_sample) ;
+				arma::vec mu_temp = Mu.col( z_i ) ; arma::mat UT_cholSigma_temp = cube_UT_cholSigma.slice( z_i ) ;
+				arma::vec y_temp = rMVN_UT_chol_fn( mu_temp, UT_cholSigma_temp ) ;
+				if ( in_range(y_temp)==1 ){
+					// Avoid drawing an extreme value outside of the support of observed value
+					Data.Y_mat.row( i_sample ) =  y_temp.t() ;
+				} // if ( sum( min_Y_imp < y_temp ) + sum( y_temp < max_Y_imp ) == (2*n_var) )				
+			}	// if ( sum(s_i) < n_var ) else ...
+			
     } // if ( sum(s_i)>0 )
   } // for (int i_sample)
   
@@ -223,6 +255,15 @@ void CParam::S_Impute_Y(CData &Data){
 //////////////////////////////////////
 // Hang Kim's Distribution
 //////////////////////////////////////
+
+int CParam::in_range(arma::vec y_gen){
+	int is_in_range = 1 ; 
+	for (int i_var=0; i_var<n_var; i_var++){
+		if (y_gen(i_var)<min_Y_imp(i_var)) is_in_range = 0 ; 
+		if (y_gen(i_var)>max_Y_imp(i_var)) is_in_range = 0 ; 
+	}	// for 
+	return(is_in_range); 
+} // bool CParam::in_range(arma::vec )
 
 arma::mat CParam::sub_Mean_Cov_fn(arma::vec which_retain_var, arma::vec mu_vec, arma::mat UT_Sigma_mat ){
   // Return mean and Covariance of which_retain_var where which_retain_var is a vector of indicator. 
