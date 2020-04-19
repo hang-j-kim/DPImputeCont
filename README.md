@@ -163,7 +163,7 @@ model_obj <- createModel(data_obj, K_mix_comp = 30)
 burn <- 200
 m_Imp <- 5
 thin <- 100
-result_obj <- multipleImp(model_obj = model_obj, n_burnin = burn, m_Imp = m_Imp, interval_btw_Imp = thin)
+result_obj <- multipleImp(model_obj = model_obj, data_obj = data_obj, n_burnin = burn, m_Imp = m_Imp, interval_btw_Imp = thin)
 
 save(data_obj = data_obj, model_obj = model_obj, result_obj = result_obj, varnames = varnames, burn = burn, file = "11b_ImputedData.RData")
 
