@@ -165,40 +165,7 @@ m_Imp <- 5
 thin <- 100
 result_obj <- multipleImp(model_obj = model_obj, n_burnin = burn, m_Imp = m_Imp, interval_btw_Imp = thin)
 
-save(data_obj = data_obj, model_obj = model_obj, result_obj = result_obj, varnames = varnames, burn = burn, 
-    file = "11b_ImputedData.RData")
-
-####################### 
-
-dim(result_obj$multiple_Imp)
-head(result_obj$multiple_Imp[1, , ])
-head(result_obj$multiple_Imp[m_Imp, , ])
-
-####################### 
-
-Y_imputed <- Y_std <- model_obj$Y_mat
-for (i_sample in 1:dim(Y_imputed)[[1]]) {
-    Y_imputed[i_sample, ] <- data_obj$mean_Y_input + data_obj$sd_Y_input * Y_std[i_sample, ]
-}
-scatter_plot_fn(D_true = D_pop, Y_imputed = Y_imputed, File_Name = "12_MI_ScatterPlots_0.png", i_rep = 0)
-
-# run 1 iteration.
-model_obj$Iterate()
-# model_obj$.where_we_are
-
-# run many iterations
-burn <- 200
-m_Imp <- 5
-thin <- 100
-# burn=10; m_Imp=5; thin=10
-where_sample_EI <- burn + seq(from = thin, to = (m_Imp * thin), by = thin)
-
-result_obj <- multipleImp(model_obj = model_obj, data_obj = data_obj, n_burnin = burn, m_Imp = m_Imp, interval_btw_Imp = thin)
-
-################## Save results 
-
-save(data_obj = data_obj, model_obj = model_obj, result_obj = result_obj, varnames = varnames, where_sample_EI = where_sample_EI, 
-    burn = burn, file = "11a_ImputedData.RData")
+save(data_obj = data_obj, model_obj = model_obj, result_obj = result_obj, varnames = varnames, burn = burn, file = "11b_ImputedData.RData")
 
 ################## Check results 
 
