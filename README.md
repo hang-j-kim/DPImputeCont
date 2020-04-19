@@ -56,6 +56,8 @@ sessionInfo()
 load("01_Sim_Population.RData")
 load("02_Sim_Sample.Rdata")
 
+head(D_sample)
+
 varnames <- dimnames(D_sample)[[2]]
 
 ################## Read the data
@@ -80,18 +82,26 @@ model_obj$Iterate()
 # model_obj$.where_we_are
 
 # run many iterations
-burn <- 500
-m_Imp <- 10
+burn <- 200
+m_Imp <- 5
 thin <- 100
 # burn=10; m_Imp=5; thin=10
 where_sample_EI <- burn + seq(from = thin, to = (m_Imp * thin), by = thin)
 
-result_obj <- multipleImp(model_obj = model_obj, n_burnin = burn, m_Imp = m_Imp, interval_btw_Imp = thin)
+result_obj <- multipleImp(model_obj = model_obj, data_obj = data_obj, n_burnin = burn, m_Imp = m_Imp, interval_btw_Imp = thin)
 
-################## Save results and make plots
+################## Save results 
 
 save(data_obj = data_obj, model_obj = model_obj, result_obj = result_obj, varnames = varnames, where_sample_EI = where_sample_EI, 
     burn = burn, file = "11a_ImputedData.RData")
+
+################## Check results 
+
+dim(result_obj$multiple_Imp)
+head(result_obj$multiple_Imp[1, , ])
+head(result_obj$multiple_Imp[m_Imp, , ])
+
+################## Make plots
 
 for (i_Imp in 1:m_Imp) {
     scatter_plot_fn(D_true = D_pop, Y_imputed = result_obj$multiple_Imp[i_Imp, , ], File_Name = paste0("12_MI_ScatterPlots_", 
@@ -150,8 +160,8 @@ data_obj <- readData(Y_in = D_sample, RandomSeed = 99)
 
 model_obj <- createModel(data_obj, K_mix_comp = 30)
 
-burn <- 500
-m_Imp <- 10
+burn <- 200
+m_Imp <- 5
 thin <- 100
 result_obj <- multipleImp(model_obj = model_obj, n_burnin = burn, m_Imp = m_Imp, interval_btw_Imp = thin)
 

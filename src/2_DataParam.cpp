@@ -215,8 +215,9 @@ void CParam::S5_Z_vec(CData &Data){
 
 void CParam::S_Impute_Y(CData &Data){
   where_we_are = "S_Impute_Y" ; 
-  	
+	
   for (int i_sample=0; i_sample<n_sample; i_sample++){
+		
     arma::vec s_i = Data.S_mat.row(i_sample).t() ;
     if ( sum(s_i) > 0 ){
       if ( sum(s_i) < n_var ){
@@ -226,7 +227,7 @@ void CParam::S_Impute_Y(CData &Data){
 	      arma::vec mu_a_star = temp_MAT.col(0) ; 
 	      arma::mat UT_chol_a = temp_MAT.cols(1,sum(s_i)) ; 
 	      arma::vec y_a = rMVN_UT_chol_fn( mu_a_star, UT_chol_a ) ;  
-	      int count_i_a = 0 ; arma::vec y_temp = y_i ; 
+	      int count_i_a = 0 ; arma::vec y_temp = y_i ;				 
 	      for (int i_var=0; i_var<n_var; i_var++){
 	        if ( s_i(i_var)==1 ){
 	          y_temp(i_var) =  y_a(count_i_a) ;
@@ -257,11 +258,11 @@ void CParam::S_Impute_Y(CData &Data){
 //////////////////////////////////////
 
 int CParam::in_range(arma::vec y_gen){
-	int is_in_range = 1 ; 
+	int is_in_range = 1 ; 	
 	for (int i_var=0; i_var<n_var; i_var++){
 		if (y_gen(i_var)<min_Y_imp(i_var)) is_in_range = 0 ; 
 		if (y_gen(i_var)>max_Y_imp(i_var)) is_in_range = 0 ; 
-	}	// for 
+	}	// for 	
 	return(is_in_range); 
 } // bool CParam::in_range(arma::vec )
 

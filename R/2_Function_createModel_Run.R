@@ -18,7 +18,7 @@ createModel <- function(data_obj, K_mix_comp=50){
 } # Initialize <- function
 
 
-multipleImp <- function(model_obj, n_burnin, m_Imp, interval_btw_Imp, show_iter=TRUE){
+multipleImp <- function(model_obj, data_obj, n_burnin, m_Imp, interval_btw_Imp, show_iter=TRUE){
   
   int_print = min(100,floor(interval_btw_Imp/2)) ; 
   

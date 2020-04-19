@@ -23,8 +23,8 @@ readData <- function( Y_in, RandomSeed=99 ){
 	  mean_Y_input[i_var] = mean(Y_in[,i_var], na.rm=TRUE)
 	  sd_Y_input[i_var] = sd(Y_in[,i_var], na.rm=TRUE)
 	  Y_mat_std[,i_var] = (Y_in[,i_var] - mean_Y_input[i_var]) / sd_Y_input[i_var]
-		min_Y_obs[i_var] = min(Y_in[,i_var], na.rm=TRUE)
-		max_Y_obs[i_var] = max(Y_in[,i_var], na.rm=TRUE)
+		min_Y_obs[i_var] = min(Y_mat_std[,i_var], na.rm=TRUE)
+		max_Y_obs[i_var] = max(Y_mat_std[,i_var], na.rm=TRUE)
 	}
 	#######
 	
